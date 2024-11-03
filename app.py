@@ -83,5 +83,5 @@ def contact():
         new_message = Message(name=name, email=email, message=message, date_sent=datetime.now())
         db.session.add(new_message)
         db.session.commit()
-        return redirect(url_for('contact'))
+        return redirect(url_for('index'))
     return render_template('contact.html')
