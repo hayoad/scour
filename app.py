@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timezone
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -22,6 +22,19 @@ class BlogPost(db.Model):
         self.author = author
         self.content = content
         self.date_posted = date_posted
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    date_sent = db.Column(db.DateTime)
+
+    def __init__(self, name, email, message, date_sent):
+        self.name = name
+        self.email = email
+        self.message = message
+        self.date_sent = date_sent
 
 @app.route('/')
 def index():
@@ -56,18 +69,14 @@ def addpost():
     return redirect(url_for('index'))
 
 
-@app.route('/contact')
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        message = request.form['message']
+        new_message = Message(name=name, email=email, message=message, date_sent=datetime.now())
+        db.session.add(new_message)
+        db.session.commit()
+        return redirect(url_for('contact'))
     return render_template('contact.html')
-
-@app.route('/send_message', methods=['POST'])
-def send_message():
-    # Handle the form submission here
-    name = request.form['name']
-    email = request.form['email']
-    message = request.form['message']
-    # Process or store the data as needed
-    message = f"Name: {name}\nEmail: {email}\nMessage: {message}"
-    return redirect(url_for('index'))
-
-
