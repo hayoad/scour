@@ -1,12 +1,17 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from datetime import datetime
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+# Use environment variables for configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///blog.db')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key_here')
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
