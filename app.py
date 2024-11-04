@@ -1,7 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from datetime import datetime
 
 app = Flask(__name__)
@@ -85,5 +84,12 @@ def contact():
 
 @app.route('/messages')
 def messages():
+    # Get the password from the URL or use a default
+    provided_password = request.args.get('password')
+    correct_password = os.getenv('ADMIN_PASSWORD', 'defaultpassword')
+    
+    if provided_password != correct_password:
+        return "Unauthorized access", 403
+    
     messages = Message.query.order_by(Message.date_sent.desc()).all()
     return render_template('messages.html', messages=messages)
