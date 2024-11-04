@@ -6,9 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Use environment variables for configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///blog.db')
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key_here')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -85,5 +83,7 @@ def contact():
         return redirect(url_for('contact'))
     return render_template('contact.html')
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route('/messages')
+def messages():
+    messages = Message.query.order_by(Message.date_sent.desc()).all()
+    return render_template('messages.html', messages=messages)
